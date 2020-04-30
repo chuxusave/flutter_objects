@@ -10,11 +10,32 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
         theme: ThemeData(
-          primaryColor: Colors.lightBlue[800], //主题色为蓝色
+          brightness: Brightness.light,
+          primaryColor: Colors.cyan, //主题色为蓝色
         ),
         home: MyHomePage(title: 'Custom UI'),
       );
 }
+
+// class MyTheme extends StatelessWidget {
+//   // iOS浅色主题final
+//   ThemeData lightTheme = ThemeData(
+//       brightness: Brightness.light, //亮色主题
+//       accentColor: Colors.white, //(按钮)Widget前景色为白色
+//       primaryColor: Colors.blue, //主题色为蓝色
+//       iconTheme: IconThemeData(color: Colors.grey), //icon主题为灰色
+//       textTheme: TextTheme(body1: TextStyle(color: Colors.black)) //文本主题为黑色
+//       );
+
+//   ThemeData darkTheme = ThemeData(
+//     brightness: Brightness.dark, //深色主题
+//     // accentColor: Colors.white, //(按钮)Widget前景色为白色
+//     // primaryColor: Colors.blue, //主题色为蓝色
+//     // iconTheme: IconThemeData(color: Colors.grey), //icon主题为灰色
+//     // textTheme: TextTheme(body1: TextStyle(color: Colors.black)) //文本主题为黑色
+//   );
+
+// }
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -28,10 +49,11 @@ class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
   //使用控制Tabbar切换
   TabController _tabController;
+  bool isLight = false;
 
   void initState() {
     super.initState();
-    _tabController = new TabController(vsync: this, length: 2);
+    _tabController = new TabController(vsync: this, length: 3);
   }
 
   @override
@@ -42,7 +64,8 @@ class _MyHomePageState extends State<MyHomePage>
         bottom: TabBar(
           tabs: <Widget>[
             Tab(icon: Icon(Icons.system_update), text: "组合"),
-            Tab(icon: Icon(Icons.cake), text: "自绘")
+            Tab(icon: Icon(Icons.cake), text: "自绘"),
+            Tab(icon: Icon(Icons.all_inclusive), text: "切换主题"),
           ],
           controller: _tabController,
         ),
@@ -65,7 +88,16 @@ class _MyHomePageState extends State<MyHomePage>
               )
             ],
           ),
-          Center(child: Cake())
+          Center(child: Cake()),
+          Center(
+              child: FlatButton(
+                  onPressed: () {
+                    print('isLight $isLight');
+                    setState(() {
+                      isLight = !isLight;
+                    });
+                  },
+                  child: Text('切换主题模式')))
         ],
       ),
     );
