@@ -1,3 +1,4 @@
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -11,7 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
         theme: ThemeData(
           brightness: Brightness.light,
-          primaryColor: Colors.cyan, //主题色为蓝色
+          primaryColor: Colors.red, //主题色为蓝色
         ),
         home: MyHomePage(title: 'Custom UI'),
       );
@@ -58,6 +59,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   Widget build(BuildContext context) {
+    print(formatDate(DateTime.now(), [yyyy, '-', mm, '-', dd]));
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
