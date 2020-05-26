@@ -1,249 +1,153 @@
-import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
-import 'dart:math';
+import 'package:flutter/gestures.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) => MaterialApp(
-        theme: ThemeData(
-          brightness: Brightness.light,
-          primaryColor: Colors.red, //主题色为蓝色
-        ),
-        home: MyHomePage(title: 'Custom UI'),
-      );
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
 }
 
-// class MyTheme extends StatelessWidget {
-//   // iOS浅色主题final
-//   ThemeData lightTheme = ThemeData(
-//       brightness: Brightness.light, //亮色主题
-//       accentColor: Colors.white, //(按钮)Widget前景色为白色
-//       primaryColor: Colors.blue, //主题色为蓝色
-//       iconTheme: IconThemeData(color: Colors.grey), //icon主题为灰色
-//       textTheme: TextTheme(body1: TextStyle(color: Colors.black)) //文本主题为黑色
-//       );
-
-//   ThemeData darkTheme = ThemeData(
-//     brightness: Brightness.dark, //深色主题
-//     // accentColor: Colors.white, //(按钮)Widget前景色为白色
-//     // primaryColor: Colors.blue, //主题色为蓝色
-//     // iconTheme: IconThemeData(color: Colors.grey), //icon主题为灰色
-//     // textTheme: TextTheme(body1: TextStyle(color: Colors.black)) //文本主题为黑色
-//   );
-
-// }
-
-class MyHomePage extends StatefulWidget {
+class MyHomePage extends StatelessWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
   final String title;
 
   @override
-  State<StatefulWidget> createState() => _MyHomePageState();
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        body: TabBarView(
+          physics: NeverScrollableScrollPhysics(),
+          children: [
+            ListenerWidget(),
+            DragWidget(),
+            DoubleGestureWidget(),
+          ],
+        ),
+        bottomNavigationBar: TabBar(
+          tabs: [
+            Tab(
+              icon: Icon(Icons.home),
+              text: "指针事件",
+            ),
+            Tab(
+              icon: Icon(Icons.rss_feed),
+              text: "手势",
+            ),
+            Tab(
+              icon: Icon(Icons.perm_identity),
+              text: "手势冲突",
+            )
+          ],
+          unselectedLabelColor: Colors.blueGrey,
+          labelColor: Colors.blue,
+          indicatorSize: TabBarIndicatorSize.label,
+          indicatorColor: Colors.red,
+        ),
+      ),
+    );
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage>
-    with SingleTickerProviderStateMixin {
-  //使用控制Tabbar切换
-  TabController _tabController;
-  bool isLight = false;
-
-  void initState() {
-    super.initState();
-    _tabController = new TabController(vsync: this, length: 3);
-  }
-
+class ListenerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    print(formatDate(DateTime.now(), [yyyy, '-', mm, '-', dd]));
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        bottom: TabBar(
-          tabs: <Widget>[
-            Tab(icon: Icon(Icons.system_update), text: "组合"),
-            Tab(icon: Icon(Icons.cake), text: "自绘"),
-            Tab(icon: Icon(Icons.all_inclusive), text: "切换主题"),
-          ],
-          controller: _tabController,
-        ),
+        body: Listener(
+      child: Container(
+        color: Colors.red,
+        width: 300,
+        height: 300,
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: <Widget>[
-          ListView(
-            children: <Widget>[
-              UpdatedItemWidget(
-                model: UpdatedItemModel(
-                    appIcon: "assets/icon.png",
-                    appDescription:
-                        "Thanks for using Google Maps! This release brings bug fixes that improve our product to help you discover new places and navigate to them.",
-                    appName: "Google Maps - Transit & Fond",
-                    appSize: "137.2",
-                    appVersion: "Version 5.19",
-                    appDate: "2019年6月5日"),
-                onPressed: () {},
-              )
-            ],
-          ),
-          Center(child: Cake()),
-          Center(
-              child: FlatButton(
-                  onPressed: () {
-                    print('isLight $isLight');
-                    setState(() {
-                      isLight = !isLight;
-                    });
-                  },
-                  child: Text('切换主题模式')))
-        ],
-      ),
-    );
+      onPointerDown: (event) => print("down $event"),
+      onPointerMove: (event) => print("move $event"),
+      onPointerUp: (event) => print("up $event"),
+    ));
   }
+}
 
+class DragWidget extends StatefulWidget {
   @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
+  _DragState createState() => new _DragState();
 }
 
-class UpdatedItemModel {
-  String appIcon;
-  String appName;
-  String appSize;
-  String appDate;
-  String appDescription;
-  String appVersion;
-  UpdatedItemModel(
-      {this.appIcon,
-      this.appName,
-      this.appSize,
-      this.appDate,
-      this.appDescription,
-      this.appVersion});
-}
-
-class UpdatedItemWidget extends StatelessWidget {
-  final UpdatedItemModel model;
-  UpdatedItemWidget({Key key, this.model, this.onPressed}) : super(key: key);
-  final VoidCallback onPressed;
+class _DragState extends State<DragWidget> {
+  double _top = 0.0; //距顶部的偏移
+  double _left = 0.0; //距左边的偏移
 
   @override
   Widget build(BuildContext context) {
-    //组合上下两部分
-    return Column(
-        children: <Widget>[buildTopRow(context), buildBottomRow(context)]);
-  }
-
-//创建上半部分
-  Widget buildTopRow(BuildContext context) {
-    return Row(children: <Widget>[
-      Padding(
-          padding: EdgeInsets.all(10),
-          child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: Image.asset(model.appIcon, width: 80, height: 80))),
-      Expanded(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("demo"),
+        ),
+        body: Stack(
           children: <Widget>[
-            Text(
-              model.appName,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 20, color: Color(0xFF8E8D92)),
-            ),
-            Text(
-              "${model.appDate}",
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 16, color: Color(0xFF8E8D92)),
-            ),
+            Positioned(
+              top: _top,
+              left: _left,
+              child: GestureDetector(
+                child: Container(color: Colors.red, width: 50, height: 50),
+                onTap: () => print("Tap"),
+                onDoubleTap: () => print("Double Tap"),
+                onLongPress: () => print("Long Press"),
+                onPanUpdate: (e) {
+                  setState(() {
+                    _left += e.delta.dx;
+                    _top += e.delta.dy;
+                  });
+                },
+              ),
+            )
           ],
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-        child: FlatButton(
-          color: Color(0xFFF1F0F7),
-          highlightColor: Colors.blue[700],
-          colorBrightness: Brightness.dark,
-          child: Text(
-            "OPEN",
-            style: TextStyle(
-                color: Color(0xFF007AFE), fontWeight: FontWeight.bold),
-          ),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-          onPressed: onPressed,
-        ),
-      )
-    ]);
-  }
-
-  //创建下半部分
-  Widget buildBottomRow(BuildContext context) {
-    return Padding(
-        padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(model.appDescription),
-              Padding(
-                  padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                  child: Text("${model.appVersion} • ${model.appSize} MB"))
-            ]));
+        ));
   }
 }
 
-class Cake extends StatelessWidget {
+class DoubleGestureWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      size: Size(200, 200),
-      painter: WheelPainter(),
-    );
+    // TODO: implement build
+    return Scaffold(
+        body: RawGestureDetector(
+      gestures: {
+        MultipleTapGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<MultipleTapGestureRecognizer>(
+          () => MultipleTapGestureRecognizer(),
+          (MultipleTapGestureRecognizer instance) {
+            instance.onTap = () => print('parent tapped ');
+          },
+        )
+      },
+      child: Container(
+        color: Colors.pinkAccent,
+        child: Center(
+          child: GestureDetector(
+              onTap: () => print('Child tapped'),
+              child: Container(
+                color: Colors.blueAccent,
+                width: 200.0,
+                height: 200.0,
+              )),
+        ),
+      ),
+    ));
   }
 }
 
-class WheelPainter extends CustomPainter {
-  //设置画笔颜色
-  Paint getColoredPaint(Color color) {
-    Paint paint = Paint();
-    paint.color = color;
-    return paint;
-  }
-
+class MultipleTapGestureRecognizer extends TapGestureRecognizer {
   @override
-  void paint(Canvas canvas, Size size) {
-    //饼图尺寸
-    double wheelSize = min(size.width, size.height) / 2;
-    double nbElem = 6;
-    double radius = (2 * pi) / nbElem;
-    Rect boundingRect = Rect.fromCircle(
-        center: Offset(wheelSize, wheelSize), radius: wheelSize);
-
-    //画圆弧，每次1/6个圆弧
-    canvas.drawArc(
-        boundingRect, 0, radius, true, getColoredPaint(Colors.orange));
-    canvas.drawArc(
-        boundingRect, radius, radius, true, getColoredPaint(Colors.black38));
-    canvas.drawArc(
-        boundingRect, radius * 2, radius, true, getColoredPaint(Colors.green));
-    canvas.drawArc(
-        boundingRect, radius * 3, radius, true, getColoredPaint(Colors.red));
-    canvas.drawArc(
-        boundingRect, radius * 4, radius, true, getColoredPaint(Colors.blue));
-    canvas.drawArc(
-        boundingRect, radius * 5, radius, true, getColoredPaint(Colors.pink));
+  void rejectGesture(int pointer) {
+    acceptGesture(pointer);
   }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => oldDelegate != this;
 }
