@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
+import 'count_container.dart';
+import 'notification_widget.dart';
+import 'event_bus_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -29,24 +31,24 @@ class MyHomePage extends StatelessWidget {
         body: TabBarView(
           physics: NeverScrollableScrollPhysics(),
           children: [
-            ListenerWidget(),
-            DragWidget(),
-            DoubleGestureWidget(),
+            CounterPage(),
+            NotificationWidget(),
+            FirstPage(),
           ],
         ),
         bottomNavigationBar: TabBar(
           tabs: [
             Tab(
               icon: Icon(Icons.home),
-              text: "指针事件",
+              text: "InheritedWidget",
             ),
             Tab(
               icon: Icon(Icons.rss_feed),
-              text: "手势",
+              text: "Notification",
             ),
             Tab(
               icon: Icon(Icons.perm_identity),
-              text: "手势冲突",
+              text: "EventBus",
             )
           ],
           unselectedLabelColor: Colors.blueGrey,
@@ -56,98 +58,5 @@ class MyHomePage extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class ListenerWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        body: Listener(
-      child: Container(
-        color: Colors.red,
-        width: 300,
-        height: 300,
-      ),
-      onPointerDown: (event) => print("down $event"),
-      onPointerMove: (event) => print("move $event"),
-      onPointerUp: (event) => print("up $event"),
-    ));
-  }
-}
-
-class DragWidget extends StatefulWidget {
-  @override
-  _DragState createState() => new _DragState();
-}
-
-class _DragState extends State<DragWidget> {
-  double _top = 0.0; //距顶部的偏移
-  double _left = 0.0; //距左边的偏移
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("demo"),
-        ),
-        body: Stack(
-          children: <Widget>[
-            Positioned(
-              top: _top,
-              left: _left,
-              child: GestureDetector(
-                child: Container(color: Colors.red, width: 50, height: 50),
-                onTap: () => print("Tap"),
-                onDoubleTap: () => print("Double Tap"),
-                onLongPress: () => print("Long Press"),
-                onPanUpdate: (e) {
-                  setState(() {
-                    _left += e.delta.dx;
-                    _top += e.delta.dy;
-                  });
-                },
-              ),
-            )
-          ],
-        ));
-  }
-}
-
-class DoubleGestureWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Scaffold(
-        body: RawGestureDetector(
-      gestures: {
-        MultipleTapGestureRecognizer:
-            GestureRecognizerFactoryWithHandlers<MultipleTapGestureRecognizer>(
-          () => MultipleTapGestureRecognizer(),
-          (MultipleTapGestureRecognizer instance) {
-            instance.onTap = () => print('parent tapped ');
-          },
-        )
-      },
-      child: Container(
-        color: Colors.pinkAccent,
-        child: Center(
-          child: GestureDetector(
-              onTap: () => print('Child tapped'),
-              child: Container(
-                color: Colors.blueAccent,
-                width: 200.0,
-                height: 200.0,
-              )),
-        ),
-      ),
-    ));
-  }
-}
-
-class MultipleTapGestureRecognizer extends TapGestureRecognizer {
-  @override
-  void rejectGesture(int pointer) {
-    acceptGesture(pointer);
   }
 }
